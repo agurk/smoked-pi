@@ -1,0 +1,24 @@
+<!doctype html>
+<title>Smoked Pi</title>
+<script type=text/javascript src="{{
+  url_for('static', filename='jquery.js') }}"></script>
+
+<div align="center">
+	<object id="smoker-svg" type="image/svg+xml" data="static/smoker.svg"></object>
+	</object>
+</div>
+
+<input id="button1" type="button" value="Update"
+            onclick="setTemperatures()"/>
+
+<script type=text/javascript >
+    function setTemperatures() {
+		temp = $.get('/temp/foo', function(data) {updateSVG(data)});
+    }
+
+	function updateSVG(data) {
+		var svg = document.getElementById('smoker-svg').contentDocument
+		svg.getElementById("temp_placeholder").textContent=data
+	}
+</script>
+
