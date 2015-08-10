@@ -9,9 +9,14 @@
 </div>
 
 <input id="button1" type="button" value="Update"
-            onclick="setTemperatures()"/>
+            onclick="startMonitor()"/>
 
 <script type=text/javascript >
+
+	function startMonitor() {
+		setInterval(setTemperatures, 1000);
+	}
+
     function setTemperatures() {
 		temp = $.get('/temp/foo', function(data) {updateSVG(data)});
     }
