@@ -18,12 +18,14 @@
 	}
 
     function setTemperatures() {
-		temp = $.get('/temp/foo', function(data) {updateSVG(data)});
+		$.getJSON('/temp/foo', function (data) {
+				$.each(data, function ( i, item ) { updateSVG(i, item) })
+			});
     }
 
-	function updateSVG(data) {
+	function updateSVG(location, temp) {
 		var svg = document.getElementById('smoker-svg').contentDocument
-		svg.getElementById("temp_placeholder").textContent=data
+		svg.getElementById(location).textContent=temp
 	}
 </script>
 
