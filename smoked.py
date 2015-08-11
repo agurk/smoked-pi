@@ -5,6 +5,7 @@ from flask import render_template
 app = Flask(__name__)
 
 from temperature import temperature
+import json
 
 @app.route('/')
 def index():
@@ -13,7 +14,12 @@ def index():
 @app.route('/temp/<sensor>')
 def getTemperature(sensor):
     temp=temperature()
-    return str(temp.CurrentTemp(sensor))
+    foo={}
+    foo['inlet_temp']=temp.CurrentTemp(sensor)
+    foo['exhaust_temp']=temp.CurrentTemp(sensor)
+    foo['chamber_temp_1']=temp.CurrentTemp(sensor)
+    foo['chamber_temp_2']=temp.CurrentTemp(sensor)
+    return str(json.JSONEncoder().encode(foo))
 
 if __name__ == '__main__':
     app.run(debug=True)
