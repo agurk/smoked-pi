@@ -18,7 +18,7 @@
 	}
 
     function setTemperatures() {
-		$.getJSON('/temp/foo', function (data) {
+		$.getJSON('/temps/', function (data) {
 				$.each(data, function ( i, item ) { updateSVG(i, item) })
 			});
     }
