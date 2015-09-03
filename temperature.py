@@ -11,6 +11,8 @@ class temperature:
         self.sensors['exhaust_temp'] = sensor('exhaust_temp', '3b-0000001916d9')
         self.sensors['chamber_temp_1'] = sensor('chamber_temp_1', '3b-000000191fc3')
         self.sensors['chamber_temp_2'] = sensor('chamber_temp_2', 'aoeu')
+        self.sensors['food_temp_1'] = sensor('food_temp_1', 'aoeu')
+        self.sensors['food_temp_2'] = sensor('food_temp_2', 'aoeu')
 
     def CurrentTemp(self, sensorName):
         sensor = self.sensors[sensorName]
