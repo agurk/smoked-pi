@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/opt/python3.4/bin/python3.4
 
 from flask import Flask
 from flask import render_template
@@ -8,12 +8,6 @@ from temperature import temperature
 import json
 
 temp = temperature()
-
-sensors={}
-sensors['inlet_temp'] = 'aoeu'
-sensors['exhaust_temp'] = 'aoeu'
-sensors['chamber_temp_1'] = 'aoeu'
-sensors['chamber_temp_2'] = 'aoeu'
 
 @app.route('/')
 def index():
@@ -29,10 +23,10 @@ def getTemperature(sensor):
 @app.route('/temps/')
 def getTemperatures():
     foo={}
-    for sensor in sensors:
-        foo[sensor]=temp.CurrentTemp(sensors[sensor])
+    for sensor in temp.sensors.keys():
+        foo[sensor]=temp.CurrentTemp(sensor)
     return str(json.JSONEncoder().encode(foo))
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', debug=True)
 
