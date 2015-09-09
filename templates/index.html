@@ -14,18 +14,46 @@
 <script type=text/javascript >
 
 	function startMonitor() {
-		setInterval(setTemperatures, 1000);
+		setInterval(updateValues, 1000);
 	}
 
-    function setTemperatures() {
+    function updateValues() {
 		$.getJSON('/temps/', function (data) {
-				$.each(data, function ( i, item ) { updateSVG(i, item) })
-			});
+			$.each(data, function ( location, item ) {
+				$.each(item, function (i, item) {
+					var svg = document.getElementById('smoker-svg').contentDocument
+					if (i === 'temperature') {
+						svg.getElementById(location).textContent=item
+					} else if ( i === 'change') {
+						setTempChange(location, item)
+					}
+				})
+			})
+		});
     }
 
-	function updateSVG(location, temp) {
+	function setTempChange(location, change) {
 		var svg = document.getElementById('smoker-svg').contentDocument
-		svg.getElementById(location).textContent=temp
+		svg.getElementById(location + '_change_large').setAttribute('visibility', 'hidden')
+		svg.getElementById(location + '_change_medium').setAttribute('visibility', 'hidden')
+		svg.getElementById(location + '_change_small').setAttribute('visibility', 'hidden')
+		svg.getElementById(location + '_neg_change_large').setAttribute('visibility', 'hidden')
+		svg.getElementById(location + '_neg_change_medium').setAttribute('visibility', 'hidden')
+		svg.getElementById(location + '_neg_change_small').setAttribute('visibility', 'hidden')
+		if (change > 5) {
+			svg.getElementById(location + '_change_large').setAttribute('visibility', 'visible')
+		} else if (change > 2) {
+			svg.getElementById(location + '_change_medium').setAttribute('visibility', 'visible')
+		} else if (change > 0.5) {
+			svg.getElementById(location + '_change_small').setAttribute('visibility', 'visible')
+		} else if (change < -5) {
+			svg.getElementById(location + '_neg_change_large').setAttribute('visibility', 'visible')
+		} else if (change < -2) {
+			svg.getElementById(location + '_neg_change_medium').setAttribute('visibility', 'visible')
+		} else if (change < -0.5) {
+			svg.getElementById(location + '_neg_change_small').setAttribute('visibility', 'visible')
+		}
 	}
+
 </script>
 
