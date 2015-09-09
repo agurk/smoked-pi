@@ -10,19 +10,25 @@ class sensor:
     sampleSize = 5
     samplePosition = 0
     startingTemp = 25
-    sleepTime = 0.2
+    sleepTime = 0.1
 
     def __init__(self, name):
         self.name=name
         self.temps = [self.startingTemp] * self.sampleSize
+        self.deltas = [0] * self.sampleSize
 
     def Temperature(self):
         return mean(self.temps)
+
+    def TempChange(self):
+        return mean(self.deltas)
         
     def UpdateTemp(self):
+        newTemp = self.RawTemp()
         self.samplePosition += 1
         self.samplePosition = self.samplePosition % self.sampleSize
-        self.temps[self.samplePosition] = self.RawTemp()
+        self.deltas[self.samplePosition] = newTemp - self.temps[self.samplePosition]
+        self.temps[self.samplePosition] = newTemp
 
     def Run(self):
         while 1:
