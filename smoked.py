@@ -1,4 +1,5 @@
 #!/opt/python3.4/bin/python3.4
+#!/usr/bin/python3
 
 from flask import Flask
 from flask import render_template
@@ -13,18 +14,22 @@ temp = temperature()
 def index():
     return render_template('index.html')
 
+def getDetails(sensor):
+    foo={}
+    if sensor in temp.sensors.keys():
+        foo['temperature'] = temp.CurrentTemp(sensor)
+        foo['change'] = temp.Change(sensor)
+    return foo
+
 @app.route('/temp/<sensor>')
 def getTemperature(sensor):
-    foo={}
-    if sensor in sensors.keys():
-        foo[sensor]=temp.CurrentTemp(sensors[sensor])
-    return str(json.JSONEncoder().encode(foo))
+    return str(json.JSONEncoder().encode(getDetails(sensor)))
 
 @app.route('/temps/')
 def getTemperatures():
     foo={}
     for sensor in temp.sensors.keys():
-        foo[sensor]=temp.CurrentTemp(sensor)
+        foo[sensor]=getDetails(sensor)
     return str(json.JSONEncoder().encode(foo))
 
 if __name__ == '__main__':
