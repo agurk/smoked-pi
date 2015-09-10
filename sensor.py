@@ -7,10 +7,10 @@ import time
 
 class sensor:
 
-    sampleSize = 5
+    sampleSize = 3
     samplePosition = 0
     startingTemp = 25
-    sleepTime = 0.1
+    sleepTime = 1.1
 
     def __init__(self, name):
         self.name=name
@@ -25,9 +25,10 @@ class sensor:
         
     def UpdateTemp(self):
         newTemp = self.RawTemp()
+        oldPosn = self.samplePosition
         self.samplePosition += 1
         self.samplePosition = self.samplePosition % self.sampleSize
-        self.deltas[self.samplePosition] = newTemp - self.temps[self.samplePosition]
+        self.deltas[self.samplePosition] = newTemp - self.temps[oldPosn]
         self.temps[self.samplePosition] = newTemp
 
     def Run(self):
