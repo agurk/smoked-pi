@@ -1,5 +1,5 @@
-#!/opt/python3.4/bin/python3.4
 #!/usr/bin/python3
+#!/opt/python3.4/bin/python3.4
 
 from flask import Flask
 from flask import render_template
@@ -19,6 +19,7 @@ def getDetails(sensor):
     if sensor in temp.sensors.keys():
         foo['temperature'] = temp.CurrentTemp(sensor)
         foo['change'] = temp.Change(sensor)
+        foo['last_update'] = temp.LastUpdate(sensor)
     return foo
 
 @app.route('/temp/<sensor>')

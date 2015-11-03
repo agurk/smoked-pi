@@ -32,3 +32,7 @@ class temperature:
         sensor = self.sensors[sensorName]
         return sensor.TempChange()
 
+    def LastUpdate(self, sensorName):
+        sensor = self.sensors[sensorName]
+        return sensor.LastUpdate()
+

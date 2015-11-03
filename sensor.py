@@ -3,6 +3,7 @@
 import re
 from statistics import mean
 import threading
+import calendar
 import time
 
 class sensor:
@@ -11,11 +12,16 @@ class sensor:
     samplePosition = 0
     startingTemp = 25
     sleepTime = 1.1
+    badReading = '-666'
+    lastReading = calendar.timegm(time.gmtime())
 
     def __init__(self, name):
         self.name=name
         self.temps = [self.startingTemp] * self.sampleSize
         self.deltas = [0] * self.sampleSize
+
+    def LastUpdate(self):
+        return calendar.timegm(time.gmtime()) - self.lastReading
 
     def Temperature(self):
         return mean(self.temps)
@@ -25,11 +31,13 @@ class sensor:
         
     def UpdateTemp(self):
         newTemp = self.RawTemp()
-        oldPosn = self.samplePosition
-        self.samplePosition += 1
-        self.samplePosition = self.samplePosition % self.sampleSize
-        self.deltas[self.samplePosition] = newTemp - self.temps[oldPosn]
-        self.temps[self.samplePosition] = newTemp
+        if newTemp != self.badReading:
+            self.lastReading = calendar.timegm(time.gmtime())
+            oldPosn = self.samplePosition
+            self.samplePosition += 1
+            self.samplePosition = self.samplePosition % self.sampleSize
+            self.deltas[self.samplePosition] = newTemp - self.temps[oldPosn]
+            self.temps[self.samplePosition] = newTemp
 
     def Run(self):
         while 1:
@@ -43,6 +51,8 @@ class sensor:
 
 class thermocouple(sensor):
 
+    badValues = [2048]
+
     def __init__(self, name, w1id, sumOffset=0, productOffset=1):
         super().__init__(name)
         self.w1id = w1id
@@ -52,8 +62,11 @@ class thermocouple(sensor):
     def RawTemp(self):
         raw = self.RawTempString()
         if raw == '':
-            raw = '0'
-        return (int(raw) / 1000) * self.productOffset + self.sumOffset
+            return self.badReading
+        convertedValue = int(raw) / 1000
+        if convertedValue in self.badValues:
+            return self.badReading
+        return convertedValue * self.productOffset + self.sumOffset
 
     def RawTempString(self):
         try:
