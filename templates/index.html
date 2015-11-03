@@ -26,6 +26,13 @@
 						svg.getElementById(location).textContent=item
 					} else if ( i === 'change') {
 						setTempChange(location, item)
+					} else if ( i === 'last_update' ) {
+						stale_icon =  svg.getElementById(location + '_stale');
+						if (item > 3) {
+							stale_icon.setAttribute('visibility', 'visible')
+						} else {
+							stale_icon.setAttribute('visibility', 'hidden')
+						}
 					}
 				})
 			})
