@@ -81,7 +81,21 @@ class thermocouple(sensor):
 
 class thermistor(sensor):
 
+    from Adafruit_ADS1x15 import ADS1x15
+
+    sps = 250  # 250 samples per second
+    gain = 4096  # +/- 4.096V
+
     def __init__(self, name, w1id, sumOffset=0, productOffset=1):
         self.name = name
         self.w1id = w1id
         self.sumOffset = sumOffset
+        self.adc = ADS1x15(ic=ADS1115)
+
+    def RawTemp(self):
+        resistance = self.adc.readADCSingleEnded(0, gain, sps)
+        t0 = 297.15
+        b = 3950
+        r0 = 5800
+        t_recip=1/t0 + 1/b * ln (resistance / r0)
+        return 1/t_recip - 273.15
