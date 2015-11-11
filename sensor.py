@@ -5,6 +5,8 @@ from statistics import mean
 import threading
 import calendar
 import time
+from Adafruit_ADS1x15 import ADS1x15
+import math
 
 class sensor:
 
@@ -81,21 +83,25 @@ class thermocouple(sensor):
 
 class thermistor(sensor):
 
-    from Adafruit_ADS1x15 import ADS1x15
 
     sps = 250  # 250 samples per second
     gain = 4096  # +/- 4.096V
 
     def __init__(self, name, w1id, sumOffset=0, productOffset=1):
+        super().__init__(name)
         self.name = name
         self.w1id = w1id
         self.sumOffset = sumOffset
-        self.adc = ADS1x15(ic=ADS1115)
+        self.adc = ADS1x15(ic=0x01)
 
     def RawTemp(self):
-        resistance = self.adc.readADCSingleEnded(0, gain, sps)
-        t0 = 297.15
-        b = 3950
-        r0 = 5800
-        t_recip=1/t0 + 1/b * ln (resistance / r0)
-        return 1/t_recip - 273.15
+        resistance = self.adc.readADCSingleEnded(0, self.gain, self.sps)
+        print (resistance)
+        if resistance > 0:
+            t0 = 297.15
+            b = float(3950)
+            r0 = float(58000)
+            t_recip=1/t0 + 1/b * math.log(resistance / r0)
+            temp = 1/t_recip - 273.15
+            return temp
+        return self.badReading
