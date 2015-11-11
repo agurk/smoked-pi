@@ -18,6 +18,7 @@ class temperature:
 #        self.sensors['chamber_temp_2'] = thermocouple('chamber_temp_2', '3b-0000001916d9')
 #        self.sensors['chamber_temp_2'].Start()
         self.sensors['food_temp_1'] = thermistor('food_temp_1', 'aoeu')
+        self.sensors['food_temp_1'].Start()
 #        self.sensors['food_temp_2'] = thermocouple('food_temp_2', 'aoeu')
 
     def CurrentTemp(self, sensorName):
