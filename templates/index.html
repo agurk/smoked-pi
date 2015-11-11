@@ -19,6 +19,7 @@
 
     function updateValues() {
 		$.getJSON('/temps/', function (data) {
+			flipBlinker();
 			$.each(data, function ( location, item ) {
 				$.each(item, function (i, item) {
 					var svg = document.getElementById('smoker-svg').contentDocument
@@ -38,6 +39,16 @@
 			})
 		});
     }
+
+	function flipBlinker() {
+		var svg = document.getElementById('smoker-svg').contentDocument
+		blinker = svg.getElementById('activity_blinker');
+		if (blinker.getAttribute('visibility') === 'hidden') {
+			blinker.setAttribute('visibility', 'visible');
+		} else {
+			blinker.setAttribute('visibility', 'hidden');
+		}
+	}
 
 	function changeTempDelta(id, amount, colour) {
 		var svg = document.getElementById('smoker-svg').contentDocument
