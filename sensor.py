@@ -53,7 +53,7 @@ class sensor:
 
 class thermocouple(sensor):
 
-    badValues = [2048]
+    badValues = [2048, 0]
 
     def __init__(self, name, w1id, sumOffset=0, productOffset=1):
         super().__init__(name)
@@ -83,6 +83,9 @@ class thermocouple(sensor):
 
 class thermistor(sensor):
 
+    a=0.00240299448648968000
+    b=0.00000418117517891415
+    c=0.00000071582625490280
 
     sps = 250  # 250 samples per second
     gain = 4096  # +/- 4.096V
@@ -98,10 +101,7 @@ class thermistor(sensor):
         resistance = self.adc.readADCSingleEnded(0, self.gain, self.sps)
         print (resistance)
         if resistance > 0:
-            t0 = 297.15
-            b = float(3950)
-            r0 = float(58000)
-            t_recip=1/t0 + 1/b * math.log(resistance / r0)
-            temp = 1/t_recip - 273.15
-            return temp
+            ln_r = math.log(resistance)
+            temp = self.a + self.b*ln_r + self.c*ln_r*ln_r*ln_r
+            return 1/temp-273.15
         return self.badReading
