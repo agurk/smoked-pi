@@ -98,8 +98,7 @@ class thermistor(sensor):
         self.adc = ADS1x15(ic=0x01)
 
     def RawTemp(self):
-        resistance = self.adc.readADCSingleEnded(0, self.gain, self.sps)
-        print (resistance)
+        resistance = self.adc.readADCSingleEnded()
         if resistance > 0:
             ln_r = math.log(resistance)
             temp = self.a + self.b*ln_r + self.c*ln_r*ln_r*ln_r
