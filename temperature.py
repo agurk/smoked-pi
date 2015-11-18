@@ -25,8 +25,8 @@ class temperature:
         sensor = self.sensors[sensorName]
         rawC = sensor.Temperature()
         rawF = (rawC * 9) / 5 + 32
-        prettyC = str("{0:.0f}".format(rawC)) + ' C'
-        prettyF = str("{0:.0f}".format(rawF)) + ' F'
+        prettyC = str("{0:.1f}".format(round(rawC, 1))) + ' C'
+        prettyF = str("{0:.1f}".format(round(rawF, 1))) + ' F'
         return prettyC + '  |  ' + prettyF
 
     def Change(self, sensorName):
