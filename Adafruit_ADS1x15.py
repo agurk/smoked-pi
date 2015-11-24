@@ -4,6 +4,8 @@ import time
 import smbus
 from Adafruit_I2C import Adafruit_I2C
 
+import threading
+
 # ===========================================================================
 # ADS1x15 Class
 #
@@ -17,7 +19,15 @@ from Adafruit_I2C import Adafruit_I2C
 # NOT IMPLEMENTED: Conversion ready pin, page 15 datasheet.
 # ===========================================================================
 
+from statistics import median
+
 class ADS1x15:
+
+  samples = 35
+  position =0
+  readings_1 =[0] * samples 
+  readings_2 =[0] * samples 
+
   i2c = None
 
   # IC Identifiers
@@ -154,34 +164,30 @@ class ADS1x15:
     self.therm1 = self.setConfig(0)
     self.therm2 = self.setConfig(1)
     self.v_in   = self.setConfig(3)
-  
-    
-  def readADCSingleEnded(self):
-    therm1 = 0
-    therm2 = 0
-    v_in   = 0
-
-    for i in range(0, 50):
+ 
+  def Run(self):
+    while 1:
       therm1 = self.readValue(self.therm1)
-      v_in   = self.readValue(self.v_in)
+      v_in  = self.readValue(self.v_in)
       therm2 = self.readValue(self.therm2)
+      self.readings_1[self.position] = self._getResistance(v_in, therm1)
+      self.readings_2[self.position] = self._getResistance(v_in, therm2)
+      self.position += 1
+      self.position = self.position % self.samples
+
+  def Start(self):
+    t = threading.Thread(target=self.Run)
+    t.daemon = True
+    t.start()
+     
     
-    therm1 = therm1/5
-    therm2 = therm2/5
-    v_in = v_in/5
-
-#    print ('t1 - ' + str(therm1))
-#    print ('t2 - ' + str(therm2))
-#    print ('v  - ' + str(v_in))
-#    print ('---')
-#    print (self.getResistance(v_in, therm1))
-#    print (self.getResistance(v_in, therm2))
-#    print()
-#
-    return self.getResistance(v_in, therm1)
-
+  def getResistance(self, sensor):
+    if sensor==0:
+      return (median(self.readings_1))
+    if sensor == 1:
+      return (median(self.readings_2))
+      
   def setConfig(self, channel, sps=250):
-    print (channel)
     # With invalid channel return -1
     if (channel > 3):
       if (self.debug):
@@ -242,7 +248,7 @@ class ADS1x15:
     result = self.i2c.readList(self.__ADS1015_REG_POINTER_CONVERT, 2)
     return (result[0] << 8) | (result[1])
 
-  def getResistance(self, Vin, Vmeasured):
+  def _getResistance(self, Vin, Vmeasured):
     resistance = float(9400)
     if Vmeasured == 0:
       return 0

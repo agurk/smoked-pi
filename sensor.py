@@ -1,16 +1,13 @@
-#!/opt/python3.4/bin/python3.4
-
 import re
 from statistics import mean
 import threading
 import calendar
 import time
-from Adafruit_ADS1x15 import ADS1x15
 import math
 
 class sensor:
 
-    sampleSize = 3
+    sampleSize = 1
     samplePosition = 0
     startingTemp = 25
     sleepTime = 1.1
@@ -90,15 +87,14 @@ class thermistor(sensor):
     sps = 250  # 250 samples per second
     gain = 4096  # +/- 4.096V
 
-    def __init__(self, name, w1id, sumOffset=0, productOffset=1):
+    def __init__(self, name, sensorId, adc):
         super().__init__(name)
         self.name = name
-        self.w1id = w1id
-        self.sumOffset = sumOffset
-        self.adc = ADS1x15(ic=0x01)
+        self.sensorId= sensorId
+        self.adc = adc
 
     def RawTemp(self):
-        resistance = self.adc.readADCSingleEnded()
+        resistance = self.adc.getResistance(self.sensorId)
         if resistance > 0:
             ln_r = math.log(resistance)
             temp = self.a + self.b*ln_r + self.c*ln_r*ln_r*ln_r
