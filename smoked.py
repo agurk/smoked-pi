@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 #!/opt/python3.4/bin/python3.4
 
 from flask import Flask
@@ -7,8 +6,9 @@ app = Flask(__name__)
 
 from temperature import temperature
 import json
+import os
 
-temp = temperature()
+temp = 0
 
 @app.route('/')
 def index():
@@ -34,5 +34,7 @@ def getTemperatures():
     return str(json.JSONEncoder().encode(foo))
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=True)
+    if os.environ.get("WERKZEUG_RUN_MAIN") == "true":
+        temp = temperature()
+    app.run(host='0.0.0.0', debug=True, threaded=False)
 
