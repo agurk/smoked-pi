@@ -3,13 +3,18 @@
 <script type=text/javascript src="{{
   url_for('static', filename='jquery.js') }}"></script>
 
-<div align="center">
-	<object id="smoker-svg" type="image/svg+xml" data="static/smoker.svg"></object>
+<input id="button1" type="button" value="Update"
+            onclick="startMonitor()"/>
+
+<div align="left">
+	<object id="gauge-svg" type="image/svg+xml" data="static/gauge.svg" width="400px" height="400px"></object>
 	</object>
 </div>
 
-<input id="button1" type="button" value="Update"
-            onclick="startMonitor()"/>
+<div align="right">
+	<object id="smoker-svg" type="image/svg+xml" data="static/smoker.svg"></object>
+	</object>
+</div>
 
 <script type=text/javascript >
 
@@ -24,6 +29,9 @@
 				$.each(item, function (i, item) {
 					var svg = document.getElementById('smoker-svg').contentDocument
 					if (i === 'temperature') {
+						if (location === 'food_temp_1' ) {
+							changeGauge(item)
+						}
 						svg.getElementById(location).textContent=item
 					} else if ( i === 'change') {
 						setTempChange(location, item)
@@ -59,6 +67,11 @@
 		widget.setAttribute('transform', 'translate('+wX+' '+wY+') scale('+amount+' '+amount+') translate('+-wX+' '+-wY+')')
 		widget.style.fill=colour
 	}
+
+    function changeGauge(temp) {
+        degrees=180+(Number(temp.substring(0,5)) * 1.8)
+		var svg = document.getElementById('gauge-svg').contentDocument.getElementById('needle').setAttribute("transform", "rotate("+degrees+" 200 200)");
+    }
 
 	function setTempChange(location, change) {
 		var svg = document.getElementById('smoker-svg').contentDocument
