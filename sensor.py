@@ -7,7 +7,7 @@ import math
 
 class sensor:
 
-    sampleSize = 1
+    sampleSize = 2
     samplePosition = 0
     startingTemp = 25
     sleepTime = 1.1
