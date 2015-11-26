@@ -6,12 +6,7 @@
 <input id="button1" type="button" value="Update"
             onclick="startMonitor()"/>
 
-<div align="left">
-	<object id="gauge-svg" type="image/svg+xml" data="static/gauge.svg" width="400px" height="400px"></object>
-	</object>
-</div>
-
-<div align="right">
+<div align="center">
 	<object id="smoker-svg" type="image/svg+xml" data="static/smoker.svg"></object>
 	</object>
 </div>
@@ -25,25 +20,8 @@
     function updateValues() {
 		$.getJSON('/temps/', function (data) {
 			flipBlinker();
-			$.each(data, function ( location, item ) {
-				$.each(item, function (i, item) {
-					var svg = document.getElementById('smoker-svg').contentDocument
-					if (i === 'temperature') {
-						if (location === 'food_temp_1' ) {
-							changeGauge(item)
-						}
-						svg.getElementById(location).textContent=item
-					} else if ( i === 'change') {
-						setTempChange(location, item)
-					} else if ( i === 'last_update' ) {
-						stale_icon =  svg.getElementById(location + '_stale');
-						if (item > 3) {
-							stale_icon.setAttribute('visibility', 'visible')
-						} else {
-							stale_icon.setAttribute('visibility', 'hidden')
-						}
-					}
-				})
+			$.each(data, function ( sensor, data) {
+				changeGauge(sensor, data);
 			})
 		});
     }
@@ -68,30 +46,24 @@
 		widget.style.fill=colour
 	}
 
-    function changeGauge(temp) {
-        degrees=180+(Number(temp.substring(0,5)) * 1.8)
-		var svg = document.getElementById('gauge-svg').contentDocument.getElementById('needle').setAttribute("transform", "rotate("+degrees+" 200 200)");
-    }
-
-	function setTempChange(location, change) {
-		var svg = document.getElementById('smoker-svg').contentDocument
-		svg.getElementById(location + '_change').setAttribute('visibility', 'visible')
-		if (change > 5) {
-			changeTempDelta(location + '_change', 2, 'brown')
-		} else if (change > 2) {
-			changeTempDelta(location + '_change', 1, 'red')
-		} else if (change > 0.5) {
-			changeTempDelta(location + '_change', 0.5, 'yellow')
-		} else if (change < -5) {
-			changeTempDelta(location + '_change', -2, 'darkblue')
-		} else if (change < -2) {
-			changeTempDelta(location + '_change', -1, 'blue')
-		} else if (change < -0.5) {
-			changeTempDelta(location + '_change', -0.5, 'aqua')
+    function changeGauge(gauge, data) {
+		temp=data['temperature']
+		if (gauge === 'gauge_1' || gauge == 'gauge_2') {
+			degrees=(Number(temp['c']) * 2.7) - 135
 		} else {
-			svg.getElementById(location + '_change').setAttribute('visibility', 'hidden')
+			degrees=(Number(temp['c']) * 0.9) - 135
 		}
-	}
+		var svg = document.getElementById('smoker-svg').contentDocument;
+		svg.getElementById(gauge + '-needle').setAttribute("transform", "rotate("+degrees+" 200 200)");
+		svg.getElementById(gauge + '-temp_c').textContent=temp['c'];
+		svg.getElementById(gauge + '-temp_f').textContent=temp['f'];
+		lastUpdate=data['last_update']
+		if (lastUpdate > 5) {
+			svg.getElementById(gauge + '-no_connection').setAttribute('visibility', 'visible');
+		} else {
+			svg.getElementById(gauge + '-no_connection').setAttribute('visibility', 'hidden');
+		}
+    }
 
 </script>
 
