@@ -53,6 +53,12 @@
 		} else {
 			degrees=(Number(temp['c']) * 0.9) - 135
 		}
+		if (degrees < -170) {
+			degrees = -170
+		}
+		else if (degrees > 170) {
+			degrees = 170
+		}
 		var svg = document.getElementById('smoker-svg').contentDocument;
 		svg.getElementById(gauge + '-needle').setAttribute("transform", "rotate("+degrees+" 200 200)");
 		svg.getElementById(gauge + '-temp_c').textContent=temp['c'];
