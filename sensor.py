@@ -50,7 +50,7 @@ class sensor:
 
 class thermocouple(sensor):
 
-    badValues = [2048, 0]
+    badValues = [2047.812, 0]
 
     def __init__(self, name, w1id, sumOffset=0, productOffset=1):
         super().__init__(name)
