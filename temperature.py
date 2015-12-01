@@ -6,6 +6,8 @@ from Adafruit_ADS1x15 import ADS1x15
 
 class temperature:
 
+    sensorData={}
+
     def __init__(self):
         self.adc = ADS1x15(ic=0x01)
         self.adc.Start()
@@ -18,11 +20,13 @@ class temperature:
         self.sensors['gauge_6'] = thermocouple('chamber_temp_2', '3b-000000191fc3')
         for key, sensor in self.sensors.items():
             sensor.Start()
+            self.sensorData[key] = SensorData()
 
     def CurrentTemp(self, sensorName):
         sensor = self.sensors[sensorName]
         rawC = sensor.Temperature()
         rawF = (rawC * 9) / 5 + 32
+        self.sensorData[sensorName].addTemp(rawC)
         temp={}
         temp['c'] = str("{0:.1f}".format(round(rawC, 1)))# + ' C'
         temp['f'] = str("{0:.0f}".format(round(rawF, 0)))# + ' F'
@@ -36,6 +40,22 @@ class temperature:
         sensor = self.sensors[sensorName]
         return sensor.LastUpdate()
 
+    def Max(self, sensorName):
+        return self.sensorData[sensorName].maxTemp
+
+    def Min(self, sensorName):
+        return self.sensorData[sensorName].minTemp
+
     def __del__(self):
         print ("Exiting")
+
+class SensorData:
+    maxTemp=30
+    minTemp=20
+
+    def addTemp(self, value):
+        if value > self.maxTemp:
+            self.maxTemp = value
+        elif value < self.minTemp:
+            self.minTemp = value
 

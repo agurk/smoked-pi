@@ -48,11 +48,11 @@
 
     function changeGauge(gauge, data) {
 		temp=data['temperature']
+		degreeFactor=0.9
 		if (gauge === 'gauge_1' || gauge == 'gauge_2') {
-			degrees=(Number(temp['c']) * 2.7) - 135
-		} else {
-			degrees=(Number(temp['c']) * 0.9) - 135
+			degreeFactor=2.7
 		}
+		degrees=(Number(temp['c']) * degreeFactor) - 135
 		if (degrees < -170) {
 			degrees = -170
 		}
@@ -69,7 +69,20 @@
 		} else {
 			svg.getElementById(gauge + '-no_connection').setAttribute('visibility', 'hidden');
 		}
+		changeTempRange(gauge, degreeFactor, data['max_temp'], data['min_temp']);
     }
+
+	function changeTempRange(gauge, degreeFactor, max, min) {
+		var svg = document.getElementById('smoker-svg').contentDocument;
+		var radius = 192.5
+		var degrees = (max - min) * degreeFactor
+		x = (Math.cos(degrees/180*Math.PI) * radius) - radius
+		y = (Math.sin(degrees/180*Math.PI) * radius) * -1
+		rotate=-225+(degrees / 2)+(((max+min)/2)*degreeFactor)
+		pathDef="M 200,200 l 192.5,0 a 192.5,192.5 0 0, 0 "+x+", "+y+" z"
+		svg.getElementById(gauge + '-temp_range').setAttribute('d', pathDef)
+		svg.getElementById(gauge + '-temp_range').setAttribute('transform', 'rotate('+rotate+' 200 200)')
+	}
 
 </script>
 
