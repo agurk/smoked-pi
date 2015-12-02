@@ -22,6 +22,7 @@ def getDetails(sensor):
         foo['last_update'] = temp.LastUpdate(sensor)
         foo['max_temp'] = temp.Max(sensor) 
         foo['min_temp'] = temp.Min(sensor) 
+        foo['status'] = temp.Status(sensor) 
     return foo
 
 @app.route('/temp/<sensor>')

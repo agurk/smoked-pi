@@ -1,5 +1,6 @@
 import re
 from statistics import mean
+from enum import Enum
 import threading
 import calendar
 import time
@@ -7,11 +8,16 @@ import math
 
 class sensor:
 
+    State = Enum('State', 'online offline error')
+
+    currentState = State.offline
+
     sampleSize = 2
     samplePosition = 0
     startingTemp = 25
     sleepTime = 1.1
     badReading = '-666'
+    disconnected = '-1337'
     lastReading = calendar.timegm(time.gmtime())
 
     def __init__(self, name):
@@ -27,10 +33,19 @@ class sensor:
 
     def TempChange(self):
         return mean(self.deltas)
+
+    def Status(self):
+        return self.currentState
         
     def UpdateTemp(self):
         newTemp = self.RawTemp()
-        if newTemp != self.badReading:
+        if newTemp == self.badReading:
+            if self.LastUpdate() > 3:
+                self.currentState = self.State.error
+        elif newTemp == self.disconnected:
+            self.currentState = self.State.offline
+        else:
+            self.currentState = self.State.online
             self.lastReading = calendar.timegm(time.gmtime())
             oldPosn = self.samplePosition
             self.samplePosition += 1
@@ -50,7 +65,8 @@ class sensor:
 
 class thermocouple(sensor):
 
-    badValues = [2047.812, 0]
+    badValues = [0]
+    disconnectedValue = 2047.812
 
     def __init__(self, name, w1id, sumOffset=0, productOffset=1):
         super().__init__(name)
@@ -65,6 +81,8 @@ class thermocouple(sensor):
         convertedValue = int(raw) / 1000
         if convertedValue in self.badValues:
             return self.badReading
+        elif convertedValue == self.disconnectedValue:
+            return self.disconnected
         return convertedValue * self.productOffset + self.sumOffset
 
     def RawTempString(self):

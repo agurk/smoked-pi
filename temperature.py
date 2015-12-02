@@ -50,6 +50,14 @@ class temperature:
     def Min(self, sensorName):
         return self.sensorData[sensorName].minTemp
 
+    def Status(self, sensorName):
+        sensor = self.sensors[sensorName]
+        if sensor.Status() == sensor.State.offline:
+            return 'offline'
+        if sensor.Status() == sensor.State.online:
+            return 'online'
+        return 'error'
+
     def __del__(self):
         print ("Exiting")
 
