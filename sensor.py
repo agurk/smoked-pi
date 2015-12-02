@@ -78,20 +78,27 @@ class thermocouple(sensor):
             return '-373260'
         return '-373260'
 
-class thermistor(sensor):
+    def Calibrate(self, temp):
+        return
 
-    a=0.00240299448648968000
-    b=0.00000418117517891415
-    c=0.00000071582625490280
+class thermistor(sensor):
 
     sps = 250  # 250 samples per second
     gain = 4096  # +/- 4.096V
 
-    def __init__(self, name, sensorId, adc):
+    #calibration data
+    cRecipTemp=[0.0] * 3
+    cLnRes=[0.0] * 3
+    cInputNo=0
+
+    def __init__(self, name, sensorId, adc, a, b, c):
         super().__init__(name)
         self.name = name
         self.sensorId= sensorId
         self.adc = adc
+        self.a = a
+        self.b = b
+        self.c = c
 
     def RawTemp(self):
         resistance = self.adc.getResistance(self.sensorId)
@@ -100,3 +107,22 @@ class thermistor(sensor):
             temp = self.a + self.b*ln_r + self.c*ln_r*ln_r*ln_r
             return 1/temp-273.15
         return self.badReading
+
+    def Calibrate(self, temp: float):
+        print ('Calibrating with ' + str(temp))
+        if self.cInputNo >= 3:
+            self.cInputNo = 0
+        self.cRecipTemp[self.cInputNo] = 1 / (temp + 273.15)
+        self.cLnRes[self.cInputNo] = math.log(self.adc.getResistance(self.sensorId))
+        self.cInputNo += 1
+        if self.cInputNo == 3:
+            cLnRes = self.cLnRes
+            cRecipTemp = self.cRecipTemp
+            y_2 =(cRecipTemp[1] - cRecipTemp[0]) / (cLnRes[1] - cLnRes[0])
+            y_3 =(cRecipTemp[2] - cRecipTemp[0]) / (cLnRes[2] - cLnRes[0])
+            self.c = ((y_3 - y_2) / (cLnRes[2] - cLnRes[1])) * ( 1 / (cLnRes[0] + cLnRes[1] + cLnRes[2]) )
+            self.b = y_2 - self.c * (cLnRes[0]**2 + cLnRes[0]*cLnRes[1] + cLnRes[1]**2)
+            self.a = cRecipTemp[0] - cLnRes[0] * (self.b + cLnRes[0]**2 * self.c)
+            print (self.name + ' - a: ' +str(self.a) + ' b:' + str(self.b) + ' c:' + str(self.c))
+
+
