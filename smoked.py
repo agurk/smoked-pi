@@ -35,6 +35,13 @@ def getTemperatures():
         foo[sensor]=getDetails(sensor)
     return str(json.JSONEncoder().encode(foo))
 
+@app.route('/calibrate/<temperature>')
+def calibrate(temperature):
+    temperature = float(temperature)
+    for sensor in temp.sensors.keys():
+        temp.sensors[sensor].Calibrate(temperature)
+    return getTemperatures()
+
 if __name__ == '__main__':
     if os.environ.get("WERKZEUG_RUN_MAIN") == "true":
         temp = temperature()
