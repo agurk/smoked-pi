@@ -104,7 +104,7 @@ class thermistor(sensor):
         resistance = self.adc.getResistance(self.sensorId)
         if resistance > 0:
             ln_r = math.log(resistance)
-            temp = self.a + self.b*ln_r + self.c*ln_r*ln_r*ln_r
+            temp = self.a + self.b*ln_r + self.c*ln_r**3
             return 1/temp-273.15
         return self.badReading
 
