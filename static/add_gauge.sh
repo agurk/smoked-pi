@@ -6,3 +6,5 @@ sed -i "s/id=\"temp_c\"/id=\"gauge_$2-temp_c\"/" $1
 sed -i "s/id=\"temp_f\"/id=\"gauge_$2-temp_f\"/" $1
 sed -i "s/id=\"temp_range\"/id=\"gauge_$2-temp_range\"/" $1
 sed -i "s/id=\"no_connection\"/id=\"gauge_$2-no_connection\"/" $1
+sed -i "s/id=\"error\"/id=\"gauge_$2-error\"/" $1
+sed -i "s/id=\"offline\"/id=\"gauge_$2-offline\"/" $1

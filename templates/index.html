@@ -6,6 +6,11 @@
 <input id="button1" type="button" value="Update"
             onclick="startMonitor()"/>
 
+<form id="calibrate" action="/calibrate/">
+	<input type="text"></input>
+	<input type="button" action="submit">calibrate</input>
+</form>
+
 <div align="center">
 	<object id="smoker-svg" type="image/svg+xml" data="static/smoker.svg"></object>
 	</object>
@@ -64,12 +69,8 @@
 		svg.getElementById(gauge + '-temp_c').textContent=temp['c'];
 		svg.getElementById(gauge + '-temp_f').textContent=temp['f'];
 		lastUpdate=data['last_update']
-		if (lastUpdate > 5) {
-			svg.getElementById(gauge + '-no_connection').setAttribute('visibility', 'visible');
-		} else {
-			svg.getElementById(gauge + '-no_connection').setAttribute('visibility', 'hidden');
-		}
 		changeTempRange(gauge, degreeFactor, data['max_temp'], data['min_temp']);
+		changeStatus(gauge, data['status']);
     }
 
 	function changeTempRange(gauge, degreeFactor, max, min) {
@@ -82,6 +83,21 @@
 		pathDef="M 200,200 l 192.5,0 a 192.5,192.5 0 0, 0 "+x+", "+y+" z"
 		svg.getElementById(gauge + '-temp_range').setAttribute('d', pathDef)
 		svg.getElementById(gauge + '-temp_range').setAttribute('transform', 'rotate('+rotate+' 200 200)')
+	}
+
+	function changeStatus(gauge, currentStatus) {
+		errorVis = 'hidden'
+		noConVis = 'hidden'
+		offlineVis = 'hidden'
+		if (currentStatus === 'offline') {
+			noConVis = 'visible'; offlineVis = 'visible';
+		} else if (currentStatus === 'error') {
+			errorVis = 'visible'; offlineVis = 'visible';
+		}
+		var svg = document.getElementById('smoker-svg').contentDocument;
+		svg.getElementById(gauge + '-offline').setAttribute('visibility', offlineVis)
+		svg.getElementById(gauge + '-no_connection').setAttribute('visibility', noConVis)
+		svg.getElementById(gauge + '-error').setAttribute('visibility', errorVis)
 	}
 
 </script>
