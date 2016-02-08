@@ -109,6 +109,9 @@ class thermistor(sensor):
     cLnRes=[0.0] * 3
     cInputNo=0
 
+    minRes = 0
+    maxRes = 500000
+
     def __init__(self, name, sensorId, adc, a, b, c):
         super().__init__(name)
         self.name = name
@@ -120,8 +123,7 @@ class thermistor(sensor):
 
     def RawTemp(self):
         resistance = self.adc.getResistance(self.sensorId)
-        print (self.name + ' -- ' + str(resistance))
-        if resistance > 0 and resistance < 500000:
+        if resistance > self.minRes and resistance < self.maxRes:
             ln_r = math.log(resistance)
             temp = self.a + self.b*ln_r + self.c*ln_r**3
             return 1/temp-273.15
