@@ -120,11 +120,12 @@ class thermistor(sensor):
 
     def RawTemp(self):
         resistance = self.adc.getResistance(self.sensorId)
-        if resistance > 0:
+        print (self.name + ' -- ' + str(resistance))
+        if resistance > 0 and resistance < 500000:
             ln_r = math.log(resistance)
             temp = self.a + self.b*ln_r + self.c*ln_r**3
             return 1/temp-273.15
-        return self.badReading
+        return self.disconnected
 
     def Calibrate(self, temp: float):
         print ('Calibrating with ' + str(temp))
