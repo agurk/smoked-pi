@@ -1,25 +1,93 @@
 <!doctype html>
+<html>
+
+<head>
+
+<style>
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f0f0;
+}
+
+li a {
+    display: block;
+    color: #000;
+    padding: 6px 6px 6px 6px;
+    text-decoration: none;
+}
+
+li a.active {
+    background-color: #919191;
+    color: white;
+}
+
+li a:hover:not(.active) {
+    background-color: #555;
+    color: white;
+}
+
+.block {
+	display: inline-block;
+	vertical-align: top;
+}
+
+.control {
+	display: inline-block;
+	width: 47%;
+	text-align: center;
+	font-size: 200%;
+	padding: 0 0 10px 0;
+}
+
+.control:hover {
+	cursor: pointer;
+    background-color: #555;
+	color: white;
+}
+
+.active {
+    background-color: light-grey;
+    color: red;
+}
+
+</style>
+</head>
+<body>
 <title>Smoked Pi</title>
+
 <script type=text/javascript src="{{
   url_for('static', filename='jquery.js') }}"></script>
 
-<input id="button1" type="button" value="Update"
-            onclick="startMonitor()"/>
+<div class="block">
+<ul>
+  <div id="startMonitor" class="control" onclick="startMonitor()">▶ </div>
+  <div id="stopMonitor" class="control" onclick="stopMonitor()">◼</div>
+  <li><a id="overview_nav" href="/">Overview</a></li>
+  <li><a id="logging_nav" href="logging">Logging</a></li>
+  <li><a id="settings_nav" href="settings">Settings</a></li>
+</ul>
 
-<form id="calibrate" action="/calibrate/">
-	<input type="text"></input>
-	<input type="button" action="submit">calibrate</input>
-</form>
 
-<div align="center">
-	<object id="smoker-svg" type="image/svg+xml" data="static/smoker.svg"></object>
-	</object>
+</div>
+
+<div class="block">
+{% block body %}{% endblock %}
 </div>
 
 <script type=text/javascript >
 
+	var refreshIntervalId;
+
 	function startMonitor() {
-		setInterval(updateValues, 1000);
+		refreshIntervalId = setInterval(updateValues, 500);
+		document.getElementById('startMonitor').className="control active";
+	}
+
+	function stopMonitor() {
+		clearInterval(refreshIntervalId);
+		document.getElementById('startMonitor').className="control";
 	}
 
     function updateValues() {
@@ -102,3 +170,12 @@
 
 </script>
 
+{% if self.navname() %}
+    <script>
+        document.getElementById('{% block navname %}{% endblock %}' + '_nav').setAttribute('class', 'active')
+    </script>
+{% endif %}
+
+
+</body>
+</html>

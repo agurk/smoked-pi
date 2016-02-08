@@ -12,7 +12,15 @@ temp = 0
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('overview.html')
+
+@app.route('/settings')
+def settings():
+	return render_template('settings.html')
+
+@app.route('/logging')
+def logging():
+	return render_template('logging.html')
 
 def getDetails(sensor):
     foo={}
