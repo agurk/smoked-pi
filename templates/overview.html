@@ -1,5 +1,100 @@
 {% extends "layout.html" %}
 {% block navname %}overview{% endblock %}
 {% block body %}
-	<object id="smoker-svg" type="image/svg+xml" data="static/smoker.svg"></object>
+<object id="smoker-svg" type="image/svg+xml" data="static/smoker.svg"></object>
+
+<script type=text/javascript >
+
+	var refreshIntervalId;
+
+	function startMonitor() {
+		refreshIntervalId = setInterval(updateValues, 500);
+		document.getElementById('startMonitor').className="control active";
+	}
+
+	function stopMonitor() {
+		clearInterval(refreshIntervalId);
+		document.getElementById('startMonitor').className="control";
+	}
+
+    function updateValues() {
+		$.getJSON('/temps/', function (data) {
+			flipBlinker();
+			$.each(data, function ( sensor, data) {
+				changeGauge(sensor, data);
+			})
+		});
+    }
+
+	function flipBlinker() {
+		var svg = document.getElementById('smoker-svg').contentDocument
+		blinker = svg.getElementById('activity_blinker');
+		if (blinker.getAttribute('visibility') === 'hidden') {
+			blinker.setAttribute('visibility', 'visible');
+		} else {
+			blinker.setAttribute('visibility', 'hidden');
+		}
+	}
+
+	function changeTempDelta(id, amount, colour) {
+		var svg = document.getElementById('smoker-svg').contentDocument
+		widget = svg.getElementById(id)
+		bbox = widget.getBBox()
+		wX = bbox.x+(bbox.width/2)
+		wY = bbox.y+(bbox.height/2)
+		widget.setAttribute('transform', 'translate('+wX+' '+wY+') scale('+amount+' '+amount+') translate('+-wX+' '+-wY+')')
+		widget.style.fill=colour
+	}
+
+    function changeGauge(gauge, data) {
+		temp=data['temperature']
+		degreeFactor=0.9
+		if (gauge === 'gauge_1' || gauge == 'gauge_2') {
+			degreeFactor=2.7
+		}
+		degrees=(Number(temp['c']) * degreeFactor) - 135
+		if (degrees < -170) {
+			degrees = -170
+		}
+		else if (degrees > 170) {
+			degrees = 170
+		}
+		var svg = document.getElementById('smoker-svg').contentDocument;
+		svg.getElementById(gauge + '-needle').setAttribute("transform", "rotate("+degrees+" 200 200)");
+		svg.getElementById(gauge + '-temp_c').textContent=temp['c'];
+		svg.getElementById(gauge + '-temp_f').textContent=temp['f'];
+		lastUpdate=data['last_update']
+		changeTempRange(gauge, degreeFactor, data['max_temp'], data['min_temp']);
+		changeStatus(gauge, data['status']);
+    }
+
+	function changeTempRange(gauge, degreeFactor, max, min) {
+		var svg = document.getElementById('smoker-svg').contentDocument;
+		var radius = 192.5
+		var degrees = (max - min) * degreeFactor
+		x = (Math.cos(degrees/180*Math.PI) * radius) - radius
+		y = (Math.sin(degrees/180*Math.PI) * radius) * -1
+		rotate=-225+(degrees / 2)+(((max+min)/2)*degreeFactor)
+		pathDef="M 200,200 l 192.5,0 a 192.5,192.5 0 0, 0 "+x+", "+y+" z"
+		svg.getElementById(gauge + '-temp_range').setAttribute('d', pathDef)
+		svg.getElementById(gauge + '-temp_range').setAttribute('transform', 'rotate('+rotate+' 200 200)')
+	}
+
+	function changeStatus(gauge, currentStatus) {
+		errorVis = 'hidden'
+		noConVis = 'hidden'
+		offlineVis = 'hidden'
+		if (currentStatus === 'offline') {
+			noConVis = 'visible'; offlineVis = 'visible';
+		} else if (currentStatus === 'error') {
+			errorVis = 'visible'; offlineVis = 'visible';
+		}
+		var svg = document.getElementById('smoker-svg').contentDocument;
+		svg.getElementById(gauge + '-offline').setAttribute('visibility', offlineVis)
+		svg.getElementById(gauge + '-no_connection').setAttribute('visibility', noConVis)
+		svg.getElementById(gauge + '-error').setAttribute('visibility', errorVis)
+	}
+
+</script>
+
 {% endblock %}
