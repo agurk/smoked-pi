@@ -16,11 +16,12 @@ def index():
 
 @app.route('/settings')
 def settings():
-	return render_template('settings.html')
+    return render_template('settings.html')
 
 @app.route('/logging')
 def logging():
-	return render_template('logging.html')
+    data=temp.Logs()
+    return render_template('logging.html', data=data)
 
 def getDetails(sensor):
     foo={}
@@ -54,5 +55,6 @@ def calibrate(temperature):
 if __name__ == '__main__':
     if os.environ.get("WERKZEUG_RUN_MAIN") == "true":
         temp = temperature()
+        temp.Start()
     app.run(host='0.0.0.0', debug=True, threaded=False)
 

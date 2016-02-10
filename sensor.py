@@ -1,10 +1,9 @@
 import re
 from statistics import mean
 from enum import Enum
-import threading
 import calendar
-import time
 import math
+import time
 
 class sensor:
 
@@ -12,10 +11,9 @@ class sensor:
 
     currentState = State.offline
 
-    sampleSize = 2
+    sampleSize = 3
     samplePosition = 0
     startingTemp = 25
-    sleepTime = 1.1
     badReading = '-666'
     disconnected = '-1337'
     lastReading = calendar.timegm(time.gmtime())
@@ -53,15 +51,6 @@ class sensor:
             self.deltas[self.samplePosition] = newTemp - self.temps[oldPosn]
             self.temps[self.samplePosition] = newTemp
 
-    def Run(self):
-        while 1:
-            self.UpdateTemp()
-            time.sleep(self.sleepTime)
-
-    def Start(self):
-        t = threading.Thread(target=self.Run)
-        t.daemon = True
-        t.start()
 
 class thermocouple(sensor):
 

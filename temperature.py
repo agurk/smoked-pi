@@ -4,6 +4,9 @@ from sensor import thermocouple
 from sensor import thermistor
 from Adafruit_ADS1x15 import ADS1x15
 
+import time
+import threading
+
 class temperature:
 
     sensorData={}
@@ -23,8 +26,39 @@ class temperature:
         self.sensors['gauge_5'] = thermocouple('chamber_temp_1', '3b-000000191713')
         self.sensors['gauge_6'] = thermocouple('chamber_temp_2', '3b-000000191fc3')
         for key, sensor in self.sensors.items():
-            sensor.Start()
             self.sensorData[key] = SensorData()
+        self.logger = SensorLog(self.sensors)
+
+    def Run(self):
+        while 1:
+            self.sensors['gauge_1'].UpdateTemp()
+            self.sensors['gauge_2'].UpdateTemp()
+            time.sleep(0.5)
+
+    def Run2(self):
+        while 1:
+            self.sensors['gauge_3'].UpdateTemp()
+            self.sensors['gauge_4'].UpdateTemp()
+            self.sensors['gauge_5'].UpdateTemp()
+            self.sensors['gauge_6'].UpdateTemp()
+            time.sleep(0.1)
+
+    def Run3(self):
+        while 1:
+            for sensor in self.sensors:
+                self.logger.log(sensor, self.sensors[sensor].Temperature())
+            time.sleep(10)
+        
+    def Start(self):
+        t = threading.Thread(target=self.Run)
+        t.daemon = True
+        t.start()
+        t2 = threading.Thread(target=self.Run2)
+        t2.daemon = True
+        t2.start()
+        t3 = threading.Thread(target=self.Run3)
+        t3.daemon = True
+        t3.start()
 
     def CurrentTemp(self, sensorName):
         sensor = self.sensors[sensorName]
@@ -58,6 +92,12 @@ class temperature:
             return 'online'
         return 'error'
 
+    def Logs(self):
+        series=''
+        for val in self.logger.series('gauge_1'):
+            series += str(round(val, 1)) + ','
+        return series
+
     def __del__(self):
         print ("Exiting")
 
@@ -71,3 +111,19 @@ class SensorData:
         elif value < self.minTemp:
             self.minTemp = value
 
+class SensorLog:
+    startTime=0
+    logFrequency=1
+    values={}
+
+    def __init__(self, values):
+        for value in values:
+            self.values[value] = []
+
+    def log(self, sensor, temp):
+        if self.startTime == 0:
+            self.startTime = 1
+        self.values[sensor].append(temp)
+    
+    def series(self, sensor):
+        return self.values[sensor]
